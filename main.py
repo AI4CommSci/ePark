@@ -1,6 +1,7 @@
 import csv
 from xml.etree.ElementTree import Element, SubElement, tostring, ElementTree
 from xml.dom import minidom
+import xml.etree.ElementTree as ET
 import os
 import requests
 
@@ -8,7 +9,7 @@ def prettify(elem):
     """Return a pretty-printed XML string for the Element."""
     rough_string = tostring(elem, 'utf-8')
     reparsed = minidom.parseString(rough_string)
-
+    # print(reparsed.toprettyxml(indent="    "))
     return reparsed.toprettyxml(indent="    ")
 
 
@@ -33,7 +34,8 @@ def download_audio(url, save_path, file_name):
 
 def create_xml(curr_ePark, out_ePark, file, dialect, lang, lang_code, dir, ePark):
 
-
+    if file != "05 恆春阿美語.csv" or dir != "文化篇":
+        return
     xml_output = os.path.join(out_ePark, lang)
     audio_output = os.path.join(xml_output, "audio")
     
@@ -49,7 +51,6 @@ def create_xml(curr_ePark, out_ePark, file, dialect, lang, lang_code, dir, ePark
     root.set("source", ePark + " " + dir + " " + dialect)
     root.set("citation", "")
     root.set("copyright", "")
-
 
     with open(os.path.join(curr_ePark, file), mode='r', encoding='utf-8') as csvfile:
         reader = csv.reader(csvfile)
@@ -72,7 +73,8 @@ def create_xml(curr_ePark, out_ePark, file, dialect, lang, lang_code, dir, ePark
                 transl_element = SubElement(s_element, "TRANSL")
                 transl_element.set("xml:lang", "en")
                 transl_element.text = english_translation
-            audio_file = dir+"_"+dialect+"_"+str(row_id)+".mp3"
+            
+            audio_file = dir+"_"+dialect+"_"+str(row_id)+audio_url.split(".")[-1]
             download_audio(audio_url, audio_output, audio_file)
             audio_element = SubElement(s_element, "AUDIO")
             audio_element.set("file", audio_file)
@@ -83,7 +85,7 @@ def create_xml(curr_ePark, out_ePark, file, dialect, lang, lang_code, dir, ePark
         xml_string = prettify(root)
     except:
         xml_string = ""
-        input("bug")
+        print(ePark, dir, dialect, lang, file)
 
     with open(os.path.join(xml_output, dialect+".xml"), "w", encoding="utf-8") as xmlfile:
         xmlfile.write(xml_string)
@@ -93,14 +95,14 @@ def create_xml(curr_ePark, out_ePark, file, dialect, lang, lang_code, dir, ePark
 
 
 
-def ePark1(dialects, lang_codes):
+def ePark1_2(dialects, lang_codes, ePark_ver):
     curr_dir = os.path.dirname(os.path.abspath(__file__))
     output_dir = os.path.join(curr_dir, "output")
-    for dir in os.listdir(os.path.join(curr_dir, "ePark_1")):
+    for dir in os.listdir(os.path.join(curr_dir, ePark_ver)):
         if dir.startswith('.'):
             continue
 
-        curr_ePark = os.path.join(curr_dir, "ePark_1", dir)
+        curr_ePark = os.path.join(curr_dir, ePark_ver, dir)
         out_ePark = os.path.join(output_dir, dir)
 
         if not os.path.exists(out_ePark):
@@ -113,10 +115,14 @@ def ePark1(dialects, lang_codes):
 
             lang = dialects[idx].split("_")[-1]
             lang_code = lang_codes[lang]
-            
-            create_xml(curr_ePark, out_ePark, file, dialects[idx], lang, lang_code, dir, "ePark1")
+            if ePark_ver == "ePark_1":
+                create_xml(curr_ePark, out_ePark, file, dialects[idx], lang, lang_code, dir, "ePark1")
+            else:
+                create_xml(curr_ePark, out_ePark, file, dialects[idx], lang, lang_code, dir, "ePark2")
 
-    
+
+
+
 
 def main():
     dialects = dict()
@@ -128,20 +134,11 @@ def main():
         next(reader)  # Skip header row
         for _, row in enumerate(reader):
             dialects[row[0]] = row[1]
-    ePark1(dialects, lang_codes)
+    #ePark1_2(dialects, lang_codes, "ePark_1")
+    ePark1_2(dialects, lang_codes, "ePark_2")
     
 
-main()
-# for subfold in os.listdir("/mmfs1/data/leferran/data/Formosan/ePark/ePark2/"):
-#     sub_path = "/mmfs1/data/leferran/data/Formosan/ePark/ePark2/"+subfold+"/"
-#     for csv_name in os.listdir(sub_path):
-#         out_path = "./eParkxml/ePark2/{}/".format(subfold)
-#         if not os.path.isdir(out_path):
-#             os.mkdir(out_path)
-#         if ".csv" in csv_name:
-#             print(subfold,csv_name)
-#             lang = csv_name.split("-")[-1].replace("csv", "").lower()
-#             input_csv = sub_path+csv_name
-#             source = os.path.basename(input_csv).replace(".csv", "")
-#             output_xml = out_path+"{}.xml".format(source)
-#             create_xml(input_csv, output_xml, source, lang)
+if __name__ == "__main__":
+    main()
+
+
