@@ -1,7 +1,6 @@
 import csv
 from xml.etree.ElementTree import Element, SubElement, tostring, ElementTree
 from xml.dom import minidom
-import xml.etree.ElementTree as ET
 import os
 import requests
 
