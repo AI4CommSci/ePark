@@ -33,8 +33,6 @@ def download_audio(url, save_path, file_name):
 
 def create_xml(curr_ePark, out_ePark, file, dialect, lang, lang_code, dir, ePark):
 
-    if file != "05 恆春阿美語.csv" or dir != "文化篇":
-        return
     xml_output = os.path.join(out_ePark, lang)
     audio_output = os.path.join(xml_output, "audio")
     
@@ -96,7 +94,7 @@ def create_xml(curr_ePark, out_ePark, file, dialect, lang, lang_code, dir, ePark
 
 def ePark1_2(dialects, lang_codes, ePark_ver):
     curr_dir = os.path.dirname(os.path.abspath(__file__))
-    output_dir = os.path.join(curr_dir, "output")
+    output_dir = os.path.join(curr_dir, "Final_XML")
     for dir in os.listdir(os.path.join(curr_dir, ePark_ver)):
         if dir.startswith('.'):
             continue
@@ -133,7 +131,7 @@ def main():
         next(reader)  # Skip header row
         for _, row in enumerate(reader):
             dialects[row[0]] = row[1]
-    #ePark1_2(dialects, lang_codes, "ePark_1")
+    ePark1_2(dialects, lang_codes, "ePark_1")
     ePark1_2(dialects, lang_codes, "ePark_2")
     
 
