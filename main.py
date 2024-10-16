@@ -43,11 +43,12 @@ def create_xml(curr_ePark, out_ePark, file, dialect, lang, lang_code, dir, ePark
         os.mkdir(audio_output)
 
     root = Element("TEXT")
-    root.set("id", "")
+    root.set("id", f"eP_{dir}_{dialect}")
     root.set("xml:lang", lang_code)
     root.set("source", ePark + " " + dir + " " + dialect)
     root.set("citation", "")
-    root.set("copyright", "")
+    root.set("BibTeX_citation", "")
+    root.set("copyright", "CC-BY-NC-SA")
 
     with open(os.path.join(curr_ePark, file), mode='r', encoding='utf-8') as csvfile:
         reader = csv.reader(csvfile)
@@ -71,11 +72,11 @@ def create_xml(curr_ePark, out_ePark, file, dialect, lang, lang_code, dir, ePark
                 transl_element.set("xml:lang", "en")
                 transl_element.text = english_translation
             
-            audio_file = dir+"_"+dialect+"_"+str(row_id)+audio_url.split(".")[-1]
-            download_audio(audio_url, audio_output, audio_file)
-            audio_element = SubElement(s_element, "AUDIO")
-            audio_element.set("file", audio_file)
-            audio_element.set("url", audio_url)
+            # audio_file = dir+"_"+dialect+"_"+str(row_id)+audio_url.split(".")[-1]
+            # download_audio(audio_url, audio_output, audio_file)
+            # audio_element = SubElement(s_element, "AUDIO")
+            # audio_element.set("file", audio_file)
+            # audio_element.set("url", audio_url)
 
 
     try:
@@ -112,10 +113,8 @@ def ePark1_2(dialects, lang_codes, ePark_ver):
 
             lang = dialects[idx].split("_")[-1]
             lang_code = lang_codes[lang]
-            if ePark_ver == "ePark_1":
-                create_xml(curr_ePark, out_ePark, file, dialects[idx], lang, lang_code, dir, "ePark1")
-            else:
-                create_xml(curr_ePark, out_ePark, file, dialects[idx], lang, lang_code, dir, "ePark2")
+            create_xml(curr_ePark, out_ePark, file, dialects[idx], lang, lang_code, dir, "".join(ePark_ver.split("_")))
+            
 
 
 
